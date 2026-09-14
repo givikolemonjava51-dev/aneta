@@ -1,0 +1,542 @@
+<title>მენიუს სვაიპი</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="მენიუ">
+<meta name="theme-color" content="#EEEBE3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#17140F" media="(prefers-color-scheme: dark)">
+<style>
+  :root{
+    --bg:#EEEBE3;
+    --surface:#FFFFFF;
+    --surface-2:#E2DDD0;
+    --text:#211D16;
+    --text-muted:#6E6656;
+    --border:#D3CCBB;
+    --accent:#A85A17;
+    --accent-soft:#F0DCC0;
+    --accent2:#28615A;
+    --accent2-soft:#D9E8E4;
+    --good:#3C7A44;
+    --good-soft:#DCEBDC;
+    --bad:#9B3A2C;
+    --bad-soft:#F4DCD5;
+    --dinner-soft:#E7D6DA;
+    --shadow: 0 1px 2px rgba(33,29,22,0.06), 0 10px 30px rgba(33,29,22,0.10);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#17140F; --surface:#211D16; --surface-2:#2A2419;
+      --text:#EFE9DD; --text-muted:#AFA48C; --border:#3B3323;
+      --accent:#E2954E; --accent-soft:#3A2A16;
+      --accent2:#5FAA9E; --accent2-soft:#1E322E;
+      --good:#7BC183; --good-soft:#213A24;
+      --bad:#E48A78; --bad-soft:#402420;
+      --dinner-soft:#3A2530;
+      --shadow: 0 1px 2px rgba(0,0,0,0.35), 0 10px 30px rgba(0,0,0,0.4);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#17140F; --surface:#211D16; --surface-2:#2A2419;
+    --text:#EFE9DD; --text-muted:#AFA48C; --border:#3B3323;
+    --accent:#E2954E; --accent-soft:#3A2A16;
+    --accent2:#5FAA9E; --accent2-soft:#1E322E;
+    --good:#7BC183; --good-soft:#213A24;
+    --bad:#E48A78; --bad-soft:#402420;
+    --dinner-soft:#3A2530;
+    --shadow: 0 1px 2px rgba(0,0,0,0.35), 0 10px 30px rgba(0,0,0,0.4);
+  }
+
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html{-webkit-text-size-adjust:100%;text-size-adjust:100%;}
+  html,body{height:100%;}
+  body{
+    margin:0;background:var(--bg);color:var(--text);
+    font-family:'IBM Plex Sans',system-ui,sans-serif;
+    padding:0 16px;
+    padding-block: max(20px, env(safe-area-inset-top)) max(28px, env(safe-area-inset-bottom));
+    padding-left: max(16px, env(safe-area-inset-left));
+    padding-right: max(16px, env(safe-area-inset-right));
+    display:flex; justify-content:center;
+    min-height:100vh; min-height:100dvh;
+  }
+  .app{width:100%;max-width:460px;display:flex;flex-direction:column;gap:16px;}
+
+  h1{font-family:'Big Shoulders Display',sans-serif;font-weight:800;font-size:1.9rem;margin:0;text-wrap:balance;line-height:1;}
+  .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent);font-weight:600;}
+  .mono{font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums;}
+
+  header{display:flex;flex-direction:column;gap:6px;}
+  header .sub{font-size:0.84rem;color:var(--text-muted);}
+
+  .tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;}
+  .tab{font-family:'IBM Plex Mono',monospace;font-size:0.76rem;font-weight:600;padding:8px 12px;border-radius:100px;border:1px solid var(--border);background:var(--surface);color:var(--text-muted);white-space:nowrap;cursor:pointer;flex:none;}
+  .tab.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+  .tab:focus-visible{outline:2px solid var(--accent2);outline-offset:2px;}
+
+  .stage{position:relative;height:526px;overflow:visible;}
+  .card{
+    position:absolute; inset:0; overflow:hidden;
+    background:var(--surface); border:1px solid var(--border); border-radius:20px;
+    box-shadow:var(--shadow); padding:22px 22px 18px;
+    display:flex; flex-direction:column; gap:10px;
+    touch-action:none; user-select:none; cursor:grab;
+    will-change:transform;
+  }
+  .card:active{cursor:grabbing;}
+  .card .catlabel{font-family:'IBM Plex Mono',monospace;font-size:0.68rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--accent2);font-weight:600;}
+  .card h2{font-family:'Big Shoulders Display',sans-serif;font-weight:700;font-size:1.5rem;margin:2px 0 0;line-height:1.05;text-wrap:balance;}
+  .card .desc{color:var(--text-muted);font-size:0.9rem;line-height:1.5;flex:1;min-height:0;overflow:hidden;}
+  .thumb{width:100%;height:104px;border-radius:14px;display:flex;align-items:center;justify-content:center;gap:2px;flex:none;}
+  .thumb svg{width:46px;height:46px;filter:drop-shadow(0 2px 3px rgba(0,0,0,0.12));margin:0 -6px;}
+  .thumb svg:nth-child(1){transform:rotate(-6deg);}
+  .thumb svg:nth-child(3){transform:rotate(6deg);}
+  .macros{display:flex;gap:8px;flex-wrap:wrap;margin-top:auto;}
+  .mchip{font-family:'IBM Plex Mono',monospace;font-size:0.76rem;padding:5px 10px;border-radius:8px;background:var(--surface-2);color:var(--text);}
+  .mchip.kcal{background:var(--accent-soft);color:var(--accent);font-weight:600;}
+  .stamp{position:absolute;top:20px;font-family:'Big Shoulders Display',sans-serif;font-weight:800;font-size:1.7rem;letter-spacing:0.05em;padding:4px 14px;border:4px solid;border-radius:10px;opacity:0;transform:rotate(-12deg);pointer-events:none;}
+  .stamp.like{right:16px;color:var(--good);border-color:var(--good);}
+  .stamp.nope{left:16px;color:var(--bad);border-color:var(--bad);transform:rotate(12deg);}
+
+  .empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;background:var(--surface);border:1px dashed var(--border);border-radius:20px;padding:24px;}
+  .empty h2{font-family:'Big Shoulders Display',sans-serif;font-size:1.6rem;margin:0;}
+  .empty p{color:var(--text-muted);font-size:0.9rem;margin:0;max-width:32ch;}
+
+  .controls{display:flex;justify-content:center;align-items:center;gap:16px;}
+  .ctrlbtn{
+    width:58px;height:58px;border-radius:50%;border:1px solid var(--border);background:var(--surface);
+    display:flex;align-items:center;justify-content:center;font-size:1.5rem;cursor:pointer;box-shadow:var(--shadow);
+    color:var(--text);
+  }
+  .ctrlbtn.nope{color:var(--bad);}
+  .ctrlbtn.like{color:var(--good);}
+  .ctrlbtn.undo{width:44px;height:44px;font-size:1.1rem;color:var(--text-muted);}
+  .ctrlbtn:active{transform:scale(0.92);}
+  .ctrlbtn:focus-visible{outline:2px solid var(--accent2);outline-offset:2px;}
+
+  .progress{display:flex;justify-content:space-between;align-items:center;font-size:0.78rem;color:var(--text-muted);}
+
+  .favwrap{border-top:1px solid var(--border);padding-top:14px;display:flex;flex-direction:column;gap:8px;}
+  .favhead{display:flex;justify-content:space-between;align-items:center;}
+  .favhead h3{font-family:'Big Shoulders Display',sans-serif;font-size:1.15rem;margin:0;}
+  .favlist{display:flex;flex-direction:column;gap:6px;}
+  .favitem{display:flex;justify-content:space-between;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:9px 12px;font-size:0.86rem;align-items:center;cursor:pointer;}
+  .favitem:hover{border-color:var(--accent2);}
+  .favitem:focus-visible{outline:2px solid var(--accent2);outline-offset:2px;}
+  .favitem .fname{font-weight:600;}
+  .favitem .fkcal{font-family:'IBM Plex Mono',monospace;color:var(--accent2);font-size:0.78rem;white-space:nowrap;}
+  .favempty{color:var(--text-muted);font-size:0.84rem;}
+  .clearbtn{font-family:'IBM Plex Mono',monospace;font-size:0.7rem;color:var(--text-muted);background:none;border:none;cursor:pointer;text-decoration:underline;padding:0;}
+
+  @media (max-width:400px){ .stage{height:502px;} }
+  :focus-visible{outline:2px solid var(--accent2);outline-offset:2px;}
+
+  .modal-backdrop{position:fixed;inset:0;background:rgba(20,17,12,0.55);display:flex;align-items:center;justify-content:center;padding:20px;z-index:100;}
+  .modal-backdrop[hidden]{display:none;}
+  .modal-card{position:relative;width:100%;max-width:400px;max-height:85vh;overflow-y:auto;background:var(--surface);border:1px solid var(--border);border-radius:20px;box-shadow:var(--shadow);padding:24px 22px 22px;display:flex;flex-direction:column;gap:10px;}
+  .modal-close{position:absolute;top:12px;right:12px;width:34px;height:34px;border-radius:50%;border:1px solid var(--border);background:var(--surface-2);color:var(--text);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+  .modal-close:focus-visible{outline:2px solid var(--accent2);outline-offset:2px;}
+  .modal-card .thumb{width:100%;height:104px;border-radius:14px;display:flex;align-items:center;justify-content:center;flex:none;}
+  .modal-card .thumb svg{width:46px;height:46px;filter:drop-shadow(0 2px 3px rgba(0,0,0,0.12));margin:0 -6px;}
+  .modal-card .catlabel{font-family:'IBM Plex Mono',monospace;font-size:0.68rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--accent2);font-weight:600;}
+  .modal-card h2{font-family:'Big Shoulders Display',sans-serif;font-weight:700;font-size:1.5rem;margin:2px 24px 0 0;line-height:1.05;text-wrap:balance;}
+  .modal-card .desc{color:var(--text-muted);font-size:0.92rem;line-height:1.5;}
+</style>
+
+<div class="app">
+  <header>
+    <div class="eyebrow">Swipe · მენიუს არჩევანი</div>
+    <h1>მენიუს სვაიპი</h1>
+    <div class="sub">დღიური სამიზნე: 1650–1700 კკალ. აირჩიე სვაიპით ერთი თითოეული კატეგორიიდან — უმეტესობა კომბინაციებისა 1600-1750-ში ხვდება, საშუალოდ ~1670-ზე.</div>
+  </header>
+
+  <div class="tabs" id="tabs" role="tablist"></div>
+
+  <div class="stage" id="stage"></div>
+
+  <div class="controls">
+    <button class="ctrlbtn nope" id="btnNope" aria-label="არ მომწონს">✕</button>
+    <button class="ctrlbtn undo" id="btnUndo" aria-label="დაბრუნება">↺</button>
+    <button class="ctrlbtn like" id="btnLike" aria-label="მომწონს">❤</button>
+  </div>
+
+  <div class="progress">
+    <span id="progressText" class="mono"></span>
+    <span>← გადაასრიალე ან დააჭირე →</span>
+  </div>
+
+  <div class="favwrap">
+    <div class="favhead">
+      <h3 id="favTitle">მოწონებული</h3>
+      <button class="clearbtn" id="btnClear">გასუფთავება</button>
+    </div>
+    <div class="favlist" id="favlist"></div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="modalBackdrop" hidden>
+  <div class="modal-card" id="modalCard" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <button class="modal-close" id="modalClose" aria-label="დახურვა">✕</button>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var ICONS = {
+    egg: '<svg viewBox="0 0 24 24"><ellipse cx="12" cy="13.5" rx="9" ry="6.5" fill="#FBF7EC" stroke="#DCD2B8" stroke-width="0.6"/><circle cx="12" cy="13.5" r="4" fill="#F0AE1E"/></svg>',
+    oats: '<svg viewBox="0 0 24 24"><path d="M3,11 A9,6 0 0,0 21,11 L20,15 A9,6 0 0,1 4,15 Z" fill="#DDC48A" stroke="#B99A5E" stroke-width="0.6"/><circle cx="9" cy="10.5" r="1" fill="#B99A5E"/><circle cx="13" cy="9.8" r="1" fill="#B99A5E"/><circle cx="16" cy="11" r="1" fill="#B99A5E"/></svg>',
+    banana: '<svg viewBox="0 0 24 24"><path d="M6,18 C6,10 11,4 18,4 C18,5.5 17,6.5 15.5,7 C10,9 8.5,13 9,18 C8,18.6 6.8,18.6 6,18 Z" fill="#E9C846" stroke="#C7A62E" stroke-width="0.5"/></svg>',
+    cheese: '<svg viewBox="0 0 24 24"><rect x="4" y="7" width="16" height="11" rx="2" fill="#F1E39F" stroke="#D7C270" stroke-width="0.6"/><circle cx="9" cy="12" r="1.3" fill="#E3CE78"/><circle cx="15" cy="14.5" r="1" fill="#E3CE78"/><circle cx="12" cy="10" r="0.8" fill="#E3CE78"/></svg>',
+    bread: '<svg viewBox="0 0 24 24"><path d="M4,18 L4,11 A8,7 0 0,1 20,11 L20,18 Z" fill="#D9A15E" stroke="#B87F42" stroke-width="0.6"/><path d="M6,11 A6,5 0 0,1 18,11" fill="none" stroke="#B87F42" stroke-width="0.6"/></svg>',
+    yogurt: '<svg viewBox="0 0 24 24"><path d="M8,5 H16 L17,19 A2,2 0 0,1 15,21 H9 A2,2 0 0,1 7,19 Z" fill="#FBF7EC" stroke="#D8CCA0" stroke-width="0.6"/><rect x="7.5" y="4" width="9" height="2.2" rx="1" fill="#DCD2B8"/><path d="M9.5,11 Q12,9 14.5,11" stroke="#C7BFA0" stroke-width="0.7" fill="none"/></svg>',
+    walnut: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="#9C6B3E" stroke="#7C4F28" stroke-width="0.6"/><path d="M12,5 V19 M6,9 Q12,12 18,9 M6,15 Q12,12 18,15" stroke="#7C4F28" stroke-width="0.6" fill="none"/></svg>',
+    berries: '<svg viewBox="0 0 24 24"><circle cx="8" cy="10" r="3.2" fill="#7B3A63"/><circle cx="13" cy="8.5" r="3.2" fill="#8E3452"/><circle cx="12" cy="14" r="3.4" fill="#6A2C58"/><path d="M12,5 L10,7 M12,5 L14,7" stroke="#4F7A3D" stroke-width="0.8"/></svg>',
+    honey: '<svg viewBox="0 0 24 24"><path d="M12,4 C16,10 16,14 12,20 C8,14 8,10 12,4 Z" fill="#DD9A1E" stroke="#B87B12" stroke-width="0.6"/></svg>',
+    avocado: '<svg viewBox="0 0 24 24"><path d="M12,3 C17,3 19,9 18,14 C17,19 15,21 12,21 C9,21 7,19 6,14 C5,9 7,3 12,3 Z" fill="#9BB56A" stroke="#5C7A3A" stroke-width="0.6"/><path d="M12,6 C15,6 16.5,10 16,13.5 C15.5,17 14,19 12,19 C10,19 8.5,17 8,13.5 C7.5,10 9,6 12,6 Z" fill="#D8C77E"/><circle cx="12" cy="13" r="3" fill="#7A5A34"/></svg>',
+    tomato: '<svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="8" fill="#C6432D" stroke="#9E3220" stroke-width="0.6"/><path d="M9,6 L11,8 M12,5 L12,8 M15,6 L13,8" stroke="#4F7A3D" stroke-width="1.2"/></svg>',
+    chicken: '<svg viewBox="0 0 24 24"><path d="M10,4 C13,4 14,7 13,10 C17,11 18,15 15,18 C13,20 10,19.5 9,17 C6.5,16 6,13 8,11 C6,9 7,5 10,4 Z" fill="#D2955C" stroke="#A96F3A" stroke-width="0.6"/><circle cx="15.5" cy="18.5" r="2" fill="#EDE3CE" stroke="#C7B98F" stroke-width="0.5"/></svg>',
+    rice: '<svg viewBox="0 0 24 24"><path d="M3,12 A9,6 0 0,0 21,12 L20,16 A9,6 0 0,1 4,16 Z" fill="#F3EEDD" stroke="#D6CBA6" stroke-width="0.6"/><ellipse cx="9" cy="10.8" rx="1.3" ry="0.6" fill="#E7DDB8"/><ellipse cx="13" cy="10" rx="1.3" ry="0.6" fill="#E7DDB8"/><ellipse cx="16" cy="11.2" rx="1.3" ry="0.6" fill="#E7DDB8"/></svg>',
+    beans: '<svg viewBox="0 0 24 24"><ellipse cx="9" cy="9" rx="3.6" ry="2.3" fill="#8A3B2C" stroke="#6B2A1F" stroke-width="0.5" transform="rotate(-25 9 9)"/><ellipse cx="15" cy="8.5" rx="3.6" ry="2.3" fill="#9C4A34" stroke="#6B2A1F" stroke-width="0.5" transform="rotate(20 15 8.5)"/><ellipse cx="8" cy="15" rx="3.6" ry="2.3" fill="#9C4A34" stroke="#6B2A1F" stroke-width="0.5" transform="rotate(15 8 15)"/><ellipse cx="15" cy="15.5" rx="3.6" ry="2.3" fill="#8A3B2C" stroke="#6B2A1F" stroke-width="0.5" transform="rotate(-15 15 15.5)"/></svg>',
+    shrimp: '<svg viewBox="0 0 24 24"><path d="M6,17 C4,12 6,6 12,5 C17,4.5 20,8 18,12 C20,12.5 20,15 17,15 C13,15 9,18 7,19 Z" fill="#EA8E7C" stroke="#C2604C" stroke-width="0.6"/><path d="M10,8 L12,9 M11,11 L13,12 M12,14 L14,14.5" stroke="#C2604C" stroke-width="0.6"/></svg>',
+    mushroom: '<svg viewBox="0 0 24 24"><path d="M4,11 A8,7 0 0,1 20,11 Z" fill="#B5763F" stroke="#8F5A2A" stroke-width="0.6"/><rect x="9.5" y="11" width="5" height="8" rx="1.5" fill="#F1E6D0" stroke="#D7C6A3" stroke-width="0.5"/><circle cx="8" cy="8.5" r="1" fill="#8F5A2A"/><circle cx="14" cy="7.5" r="1" fill="#8F5A2A"/></svg>',
+    fish: '<svg viewBox="0 0 24 24"><path d="M3,13 C7,9 15,9 19,13 C15,17 7,17 3,13 Z" fill="#7FA3B6" stroke="#4F6E80" stroke-width="0.6"/><circle cx="7" cy="12" r="0.8" fill="#2E4550"/><path d="M18,10.5 L22,8 L21,13 L22,18 L18,15.5" fill="#6E93A8" stroke="#4F6E80" stroke-width="0.5"/></svg>',
+    beef: '<svg viewBox="0 0 24 24"><rect x="4" y="7" width="16" height="10" rx="3" fill="#8A4A3B" stroke="#6B342A" stroke-width="0.6"/><path d="M7,10 L10,14 M11,9 L14,15 M15,10 L18,14" stroke="#6B342A" stroke-width="0.8"/></svg>',
+    skewer: '<svg viewBox="0 0 24 24"><line x1="2" y1="12" x2="22" y2="12" stroke="#B89257" stroke-width="1.4"/><rect x="5" y="8" width="4" height="8" rx="1" fill="#8A4A3B"/><rect x="11" y="8" width="4" height="8" rx="1" fill="#B5433A"/><rect x="17" y="8" width="3.5" height="8" rx="1" fill="#5B7A3D"/></svg>',
+    potato: '<svg viewBox="0 0 24 24"><ellipse cx="12" cy="13" rx="8.5" ry="6.5" fill="#C6A05F" stroke="#9C7C43" stroke-width="0.6"/><circle cx="9" cy="11" r="0.8" fill="#9C7C43"/><circle cx="14" cy="15" r="0.8" fill="#9C7C43"/><circle cx="16" cy="10.5" r="0.6" fill="#9C7C43"/></svg>',
+    shake: '<svg viewBox="0 0 24 24"><path d="M6,5 H18 L16.5,20 A2,2 0 0,1 14.5,22 H9.5 A2,2 0 0,1 7.5,20 Z" fill="#F3EEDD" stroke="#C9BC90" stroke-width="0.6"/><line x1="15" y1="2" x2="12" y2="13" stroke="#C9BC90" stroke-width="1.3"/><path d="M8,9 H16" stroke="#DFC98E" stroke-width="0.6"/></svg>',
+    granola: '<svg viewBox="0 0 24 24"><path d="M3,12 A9,6 0 0,0 21,12 L20,16 A9,6 0 0,1 4,16 Z" fill="#E7DDB8" stroke="#C9B885" stroke-width="0.6"/><circle cx="8" cy="10.5" r="1.1" fill="#A9803F"/><circle cx="12" cy="9.7" r="1.1" fill="#8E3452"/><circle cx="16" cy="11" r="1.1" fill="#A9803F"/></svg>',
+    apple: '<svg viewBox="0 0 24 24"><path d="M12,9 C9,6 4,7 4,13 C4,18 8,21 12,18 C16,21 20,18 20,13 C20,7 15,6 12,9 Z" fill="#C6432D" stroke="#9E3220" stroke-width="0.6"/><path d="M12,9 V6" stroke="#7C4F28" stroke-width="1"/><path d="M12,6 Q14,5 15,7" fill="#5B7A3D" stroke="#4F7A3D" stroke-width="0.4"/></svg>',
+    orange: '<svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="8" fill="#E8963A" stroke="#C47825" stroke-width="0.6"/><path d="M12,5 L12,7" stroke="#5B7A3D" stroke-width="1.2"/><path d="M12,7 L9,13 M12,7 L15,13 M12,7 L12,15" stroke="#C47825" stroke-width="0.4"/></svg>',
+    carrot: '<svg viewBox="0 0 24 24"><path d="M9,7 L18,16 A2.5,2.5 0 0,1 14.5,19.5 L6,11 A2.5,2.5 0 0,1 9,7 Z" fill="#DD8A2E" stroke="#B8701F" stroke-width="0.6"/><path d="M6,7 L9,4 M8,9 L10,6 M9,11 L12,8" stroke="#5B8A3D" stroke-width="1.3"/></svg>',
+    hummus: '<svg viewBox="0 0 24 24"><path d="M3,11 A9,6 0 0,0 21,11 L20,16 A9,6 0 0,1 4,16 Z" fill="#E4D49A" stroke="#C4AF6E" stroke-width="0.6"/><circle cx="10" cy="10.5" r="1" fill="#C4AF6E"/><circle cx="14" cy="10" r="1" fill="#C4AF6E"/><path d="M9,10 Q12,8.5 15,10" stroke="#B87B12" stroke-width="0.5" fill="none"/></svg>',
+    ricecake: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="#F1EBD6" stroke="#D6C99C" stroke-width="0.7"/><circle cx="9" cy="10" r="0.7" fill="#D6C99C"/><circle cx="14" cy="9" r="0.7" fill="#D6C99C"/><circle cx="15" cy="14" r="0.7" fill="#D6C99C"/><circle cx="10" cy="15" r="0.7" fill="#D6C99C"/></svg>'
+  };
+  var TINT = {"საუზმე":"var(--accent-soft)","ლანჩი":"var(--good-soft)","შუალედური":"var(--accent2-soft)","სადილი":"var(--dinner-soft)"};
+
+  var DATA = {
+    "საუზმე": [
+      {name:"ოვსის ფაფა ბანანით", desc:"ოვსი 55გ + რძე 200მლ + ბანანი + თაფლი 1ს/კ", kcal:433, p:17, f:6, c:82, icons:["oats","banana","honey"]},
+      {name:"ორცხობილა და პური", desc:"3 მოხარშული კვერცხი + პური 60გ — მხოლოდ მოხარშვა", kcal:382, p:27, f:18, c:26, icons:["egg","bread"]},
+      {name:"ხაჭო და კენკრა", desc:"ხაჭო 300გ + გაყინული კენკრა 100გ + თაფლი — უბრალოდ არევა", kcal:374, p:34, f:15, c:30, icons:["cheese","berries","honey"]},
+      {name:"ომლეტი ბოსტნეულით", desc:"3 კვერცხი + ბოსტნეული + პური 40გ", kcal:368, p:26, f:18, c:24, icons:["egg","tomato","bread"]},
+      {name:"ბერძნული იოგურტი მუსლით", desc:"ბერძნული იოგურტი 280გ + დაბალშაქრიანი გრანოლა 35გ", kcal:362, p:28, f:12, c:32, icons:["yogurt","granola"]},
+      {name:"ავოკადოს ტოსტი", desc:"პური 70გ + ავოკადო 70გ + 1 კვერცხი", kcal:363, p:17, f:19, c:36, icons:["bread","avocado","egg"]},
+      {name:"ცილოვანი სმუზი", desc:"whey 1 დოზა + ბანანი + რძე 220მლ + ოვსი 15გ", kcal:376, p:35, f:5, c:51, icons:["shake","banana","oats"]},
+      {name:"ტორტილა ხაჭოთი", desc:"ტორტილა 65გ + ხაჭო 150გ + კიტრი — შეახვიე, გაცხელება არ სჭირდება", kcal:356, p:22, f:12, c:39, icons:["bread","cheese","tomato"]},
+      {name:"შაქშუკა მინი", desc:"3 კვერცხი პომიდვრის სოუსში + პური 40გ", kcal:403, p:27, f:20, c:28, icons:["egg","tomato","bread"]},
+      {name:"წიწიბურას ბლინი ხაჭოთი", desc:"წიწიბურა 150გ + 1 კვერცხი + ხაჭო 120გ", kcal:380, p:26, f:12, c:45, icons:["rice","egg","cheese"]},
+      {name:"კაკალი და ხილი", desc:"ბერძნული იოგურტი 220გ + კაკალი 20გ + ვაშლი", kcal:369, p:23, f:17, c:32, icons:["yogurt","walnut","apple"]},
+      {name:"რაისქეიქი ხაჭოთი", desc:"რაისქეიქი 35გ + ხაჭო 220გ + თაფლი", kcal:381, p:27, f:12, c:44, icons:["ricecake","cheese","honey"]}
+    ],
+    "ლანჩი": [
+      {name:"ქათამი და ბრინჯი", desc:"ქათმის მკერდი 180გ + ბრინჯი 180გ + ბოსტნეული + ზეთი", kcal:637, p:64, f:13, c:59, icons:["chicken","rice","tomato"]},
+      {name:"ინდაური და წიწიბურა", desc:"ინდაურის მკერდი 190გ + წიწიბურა 200გ + ბოსტნეული + ზეთი", kcal:546, p:67, f:10, c:49, icons:["chicken","rice","tomato"]},
+      {name:"ტუნა და ბრინჯი", desc:"კონსერვის ტუნა 180გ + ბრინჯი 200გ + სალათი + ზეთი", kcal:582, p:54, f:11, c:64, icons:["fish","rice","tomato"]},
+      {name:"კრევეტი ბოსტნეულით", desc:"კრევეტი 220გ + ბრინჯი 170გ + ბოსტნეული + ზეთი", kcal:544, p:60, f:8, c:57, icons:["shrimp","rice","tomato"]},
+      {name:"ლობიო და მჭადი", desc:"წითელი ლობიო 300გ + მჭადი 80გ + სალათი", kcal:597, p:31, f:9, c:101, icons:["beans","bread","tomato"]},
+      {name:"ქათამი სოკოთი", desc:"ქათმის მკერდი 180გ + შემწვარი სოკო 150გ + წიწიბურა 180გ", kcal:553, p:66, f:12, c:42, icons:["chicken","mushroom","rice"]},
+      {name:"ორაგული და კარტოფილი", desc:"ორაგული 150გ + კარტოფილი 220გ + სალათი", kcal:563, p:39, f:22, c:52, icons:["fish","potato","tomato"]},
+      {name:"საქონელი და ბრინჯი", desc:"საქონლის მჭლე ხორცი 170გ + ბრინჯი 180გ + სალათი", kcal:586, p:51, f:15, c:58, icons:["beef","rice","tomato"]},
+      {name:"ინდაურის სენდვიჩი", desc:"ინდაურის მკერდი 160გ + პური 90გ + ყველი + სალათი", kcal:538, p:66, f:12, c:42, icons:["chicken","bread","cheese"]},
+      {name:"ჰუმუსის თასი", desc:"ჰუმუსი 180გ + სტაფილო + კიტრი + პური 60გ", kcal:511, p:24, f:21, c:65, icons:["hummus","carrot","bread"]},
+      {name:"ტუნას სალათი პურით", desc:"კონსერვის ტუნა 200გ + სალათი + ზეთი + პური 70გ", kcal:518, p:63, f:13, c:36, icons:["fish","tomato","bread"]},
+      {name:"ქათმის რაპი ტორტილაში", desc:"ქათმის მკერდი 170გ + ტორტილა 70გ + ბოსტნეული", kcal:532, p:60, f:11, c:41, icons:["chicken","bread","tomato"]}
+    ],
+    "შუალედური": [
+      {name:"ვაშლი და კაკალი", desc:"ვაშლი + კაკალი 18გ — არაფრის მომზადება", kcal:211, p:3, f:12, c:28, icons:["apple","walnut"]},
+      {name:"ბერძნული იოგურტი", desc:"ბერძნული იოგურტი 250გ — პირდაპირ საჭმელად", kcal:182, p:22, f:5, c:10, icons:["yogurt"]},
+      {name:"ხაჭო და ბანანი", desc:"ხაჭო 150გ + ბანანი", kcal:252, p:18, f:8, c:32, icons:["cheese","banana"]},
+      {name:"ჰუმუსი და სტაფილო", desc:"ჰუმუსი 90გ + სტაფილო 120გ", kcal:199, p:8, f:9, c:25, icons:["hummus","carrot"]},
+      {name:"რაისქეიქი და ხაჭო", desc:"რაისქეიქი 30გ + ხაჭო 100გ", kcal:214, p:13, f:6, c:27, icons:["ricecake","cheese"]},
+      {name:"შეიკი მსუბუქი", desc:"whey 1 დოზა + რძე 180მლ", kcal:196, p:30, f:3, c:12, icons:["shake"]},
+      {name:"ფორთოხალი და ნუში", desc:"ფორთოხალი + ნუში 15გ", kcal:190, p:5, f:8, c:30, icons:["orange","walnut"]},
+      {name:"კენკრა და იოგურტი", desc:"ბერძნული იოგურტი 180გ + გაყინული კენკრა 80გ", kcal:171, p:16, f:4, c:17, icons:["yogurt","berries"]}
+    ],
+    "სადილი": [
+      {name:"ორაგული და ბოსტნეული", desc:"ორაგული 160გ + კარტოფილი 200გ + სალათი", kcal:567, p:41, f:23, c:48, icons:["fish","potato","tomato"]},
+      {name:"საქონელი და სალათი", desc:"საქონლის მჭლე ხორცი 180გ + ბრინჯი 170გ + სალათი", kcal:591, p:54, f:15, c:55, icons:["beef","rice","tomato"]},
+      {name:"ინდაურის შაშლიკი", desc:"ინდაურის მკერდი 220გ + ბოსტნეული + კარტოფილი 140გ", kcal:533, p:73, f:9, c:40, icons:["skewer","chicken","potato"]},
+      {name:"მოხარშული კვერცხი და ავოკადო", desc:"3 მოხარშული კვერცხი + ავოკადო 80გ + პური 60გ — მხოლოდ მოხარშვა", kcal:510, p:29, f:31, c:33, icons:["egg","avocado","bread"]},
+      {name:"ტუნას სალათი", desc:"კონსერვის ტუნა 200გ + სალათი + ზეთი + პური 55გ", kcal:511, p:62, f:15, c:31, icons:["fish","tomato","bread"]},
+      {name:"ქათამი ბოსტნეულით", desc:"ქათმის მკერდი 190გ + ბოსტნეული + ზეთი + კარტოფილი 100გ", kcal:532, p:65, f:14, c:32, icons:["chicken","tomato","potato"]},
+      {name:"კრევეტი სალათში", desc:"კრევეტი 200გ + სალათი + ბრინჯი 120გ + პური 25გ", kcal:558, p:58, f:12, c:55, icons:["shrimp","tomato","rice"]},
+      {name:"ლობიო მსუბუქად", desc:"წითელი ლობიო 280გ + სალათი + ზეთი + კაკალი 10გ", kcal:531, p:28, f:18, c:70, icons:["beans","tomato","walnut"]},
+      {name:"ხაჭოს კასეროლი", desc:"ხაჭო 280გ + 1 კვერცხი + კენკრა + ოვსი 35გ", kcal:528, p:44, f:22, c:43, icons:["cheese","egg","berries"]},
+      {name:"ინდაურის ბურგერი პურის გარეშე", desc:"ინდაურის მკერდი 200გ + ყველი + ბოსტნეული + კარტოფილი 140გ", kcal:505, p:70, f:8, c:38, icons:["chicken","cheese","potato"]},
+      {name:"ორაგული ლიმონით", desc:"ორაგული 150გ + სალათი + კარტოფილი 170გ", kcal:520, p:39, f:22, c:42, icons:["fish","potato","tomato"]},
+      {name:"ქათმის სალათი ჰუმუსით", desc:"ქათმის მკერდი 170გ + ჰუმუსი 90გ + კიტრი + პური 25გ", kcal:507, p:64, f:16, c:26, icons:["chicken","hummus","tomato"]}
+    ]
+  };
+
+  var cats = Object.keys(DATA);
+  var current = cats[0];
+  var deck = [];
+  var history = [];
+  var favorites = {};
+
+  try { favorites = JSON.parse(localStorage.getItem('menu-swipe-favs')||'{}'); } catch(e){ favorites = {}; }
+  cats.forEach(function(c){ if(!favorites[c]) favorites[c]=[]; });
+
+  function saveFavs(){ try{ localStorage.setItem('menu-swipe-favs', JSON.stringify(favorites)); }catch(e){} }
+
+  function shuffle(arr){
+    var a = arr.slice();
+    for (var i=a.length-1;i>0;i--){
+      var j = Math.floor(Math.random()*(i+1));
+      var t=a[i]; a[i]=a[j]; a[j]=t;
+    }
+    return a;
+  }
+
+  var tabsEl = document.getElementById('tabs');
+  cats.forEach(function(c){
+    var b = document.createElement('button');
+    b.className = 'tab' + (c===current?' active':'');
+    b.textContent = c;
+    b.setAttribute('role','tab');
+    b.addEventListener('click', function(){
+      current = c;
+      Array.prototype.forEach.call(tabsEl.children, function(el){ el.classList.remove('active'); });
+      b.classList.add('active');
+      resetDeck();
+    });
+    tabsEl.appendChild(b);
+  });
+
+  var stage = document.getElementById('stage');
+  var progressText = document.getElementById('progressText');
+  var favlist = document.getElementById('favlist');
+  var favTitle = document.getElementById('favTitle');
+
+  function resetDeck(){
+    deck = shuffle(DATA[current].map(function(item,idx){ return Object.assign({_idx:idx}, item); }));
+    history = [];
+    render();
+  }
+
+  function renderFavs(){
+    var list = favorites[current] || [];
+    favTitle.textContent = 'მოწონებული (' + current + ') · ' + list.length;
+    favlist.innerHTML = '';
+    if(list.length===0){
+      var e = document.createElement('div');
+      e.className='favempty';
+      e.textContent = 'ჯერ არაფერი მოგისწონია — გადაასრიალე მარჯვნივ, რაც მოგეწონება.';
+      favlist.appendChild(e);
+      return;
+    }
+    var catForLookup = current;
+    list.forEach(function(item){
+      var row = document.createElement('div');
+      row.className='favitem';
+      row.tabIndex = 0;
+      row.setAttribute('role','button');
+      row.setAttribute('aria-label', item.name + ', დეტალების სანახავად დააჭირე');
+      var icon = (item.icons&&item.icons[0]&&ICONS[item.icons[0]]) ? ICONS[item.icons[0]] : '';
+      var left = document.createElement('div');
+      left.style.display='flex'; left.style.alignItems='center'; left.style.gap='8px';
+      left.innerHTML = '<span style="width:22px;height:22px;display:inline-flex;flex:none;">'+icon+'</span><span class="fname">'+item.name+'</span>';
+      var k = document.createElement('div'); k.className='fkcal mono'; k.textContent = item.kcal+' კკალ';
+      row.appendChild(left); row.appendChild(k);
+      row.addEventListener('click', function(){ openDetail(catForLookup, item); });
+      row.addEventListener('keydown', function(e){
+        if(e.key==='Enter' || e.key===' '){ e.preventDefault(); openDetail(catForLookup, item); }
+      });
+      favlist.appendChild(row);
+    });
+  }
+
+  var modalBackdrop = document.getElementById('modalBackdrop');
+  var modalContent = document.getElementById('modalContent');
+  var modalCloseBtn = document.getElementById('modalClose');
+  var lastFocused = null;
+
+  function openDetail(catName, favItem){
+    var full = favItem;
+    if(full.desc===undefined || full.p===undefined){
+      var found = (DATA[catName]||[]).find(function(x){ return x.name===favItem.name; });
+      if(found) full = found;
+    }
+    var iconsHtml = (full.icons||[]).map(function(id){ return ICONS[id] || ''; }).join('');
+    modalContent.innerHTML =
+      '<div class="thumb" style="background:'+(TINT[catName]||'var(--surface-2)')+'">'+iconsHtml+'</div>' +
+      '<div class="catlabel">'+catName+'</div>' +
+      '<h2 id="modalTitle">'+full.name+'</h2>' +
+      '<div class="desc">'+(full.desc||'')+'</div>' +
+      '<div class="macros">' +
+        '<span class="mchip kcal">'+full.kcal+' კკალ</span>' +
+        (full.p!==undefined ? '<span class="mchip">P '+full.p+'გ</span><span class="mchip">F '+full.f+'გ</span><span class="mchip">C '+full.c+'გ</span>' : '') +
+      '</div>';
+    lastFocused = document.activeElement;
+    modalBackdrop.hidden = false;
+    modalCloseBtn.focus();
+  }
+
+  function closeDetail(){
+    modalBackdrop.hidden = true;
+    if(lastFocused && lastFocused.focus) lastFocused.focus();
+  }
+
+  modalCloseBtn.addEventListener('click', closeDetail);
+  modalBackdrop.addEventListener('click', function(e){
+    if(e.target === modalBackdrop) closeDetail();
+  });
+  document.addEventListener('keydown', function(e){
+    if(e.key==='Escape' && !modalBackdrop.hidden) closeDetail();
+  });
+
+  function makeCard(item, z){
+    var el = document.createElement('div');
+    el.className = 'card';
+    el.style.zIndex = z;
+    var iconsHtml = (item.icons||[]).map(function(id){ return ICONS[id] || ''; }).join('');
+    el.innerHTML =
+      '<div class="thumb" style="background:'+(TINT[current]||'var(--surface-2)')+'">'+iconsHtml+'</div>' +
+      '<div class="catlabel">'+current+'</div>' +
+      '<h2>'+item.name+'</h2>' +
+      '<div class="desc">'+item.desc+'</div>' +
+      '<div class="macros">' +
+        '<span class="mchip kcal">'+item.kcal+' კკალ</span>' +
+        '<span class="mchip">P '+item.p+'გ</span>' +
+        '<span class="mchip">F '+item.f+'გ</span>' +
+        '<span class="mchip">C '+item.c+'გ</span>' +
+      '</div>' +
+      '<div class="stamp like">მომწონს</div>' +
+      '<div class="stamp nope">არა</div>';
+    return el;
+  }
+
+  function render(){
+    stage.innerHTML = '';
+    progressText.textContent = deck.length + ' ვარიანტი დარჩენილია';
+    renderFavs();
+    if(deck.length===0){
+      var empty = document.createElement('div');
+      empty.className='empty';
+      empty.innerHTML = '<h2>ესეიც ყველა</h2><p>ყველა '+current+' ვარიანტი გადახედე. თავიდან დაწყება რომ გინდა, დააჭირე ღილაკს.</p>';
+      var btn = document.createElement('button');
+      btn.className='tab active';
+      btn.style.marginTop='4px';
+      btn.textContent='თავიდან არევა';
+      btn.addEventListener('click', resetDeck);
+      empty.appendChild(btn);
+      stage.appendChild(empty);
+      return;
+    }
+    var visible = deck.slice(0,3);
+    for (var i=visible.length-1;i>=0;i--){
+      var card = makeCard(visible[i], 10+ (visible.length-i));
+      var depth = i;
+      card.style.transform = 'translateY('+(depth*8)+'px) scale('+(1-depth*0.035)+')';
+      card.style.opacity = String(1 - depth*0.15);
+      if(depth===0){ attachDrag(card); }
+      stage.appendChild(card);
+    }
+  }
+
+  var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function commit(dir){
+    if(deck.length===0) return;
+    var item = deck[0];
+    var topCard = stage.querySelector('.card');
+    history.push({item:item, dir:dir});
+    if(dir==='like'){
+      var list = favorites[current];
+      if(!list.some(function(f){return f.name===item.name;})){
+        list.push({name:item.name, desc:item.desc, kcal:item.kcal, p:item.p, f:item.f, c:item.c, icons:item.icons});
+        saveFavs();
+      }
+    }
+    var finish = function(){
+      deck = deck.slice(1);
+      render();
+    };
+    if(topCard && !reduceMotion){
+      topCard.style.transition = 'transform .35s ease, opacity .35s ease';
+      var x = dir==='like' ? 600 : -600;
+      topCard.style.transform = 'translateX('+x+'px) rotate('+(dir==='like'?20:-20)+'deg)';
+      topCard.style.opacity = '0';
+      setTimeout(finish, 260);
+    } else {
+      finish();
+    }
+  }
+
+  function undo(){
+    var last = history.pop();
+    if(!last) return;
+    if(last.dir==='like'){
+      var list = favorites[current];
+      var idx = list.findIndex(function(f){return f.name===last.item.name;});
+      if(idx>-1){ list.splice(idx,1); saveFavs(); }
+    }
+    deck.unshift(last.item);
+    render();
+  }
+
+  document.getElementById('btnLike').addEventListener('click', function(){ commit('like'); });
+  document.getElementById('btnNope').addEventListener('click', function(){ commit('nope'); });
+  document.getElementById('btnUndo').addEventListener('click', undo);
+  document.getElementById('btnClear').addEventListener('click', function(){
+    favorites[current] = [];
+    saveFavs();
+    renderFavs();
+  });
+
+  document.addEventListener('keydown', function(e){
+    if(!modalBackdrop.hidden) return;
+    if(e.key==='ArrowRight'){ commit('like'); }
+    else if(e.key==='ArrowLeft'){ commit('nope'); }
+    else if(e.key==='ArrowUp' || e.key==='z'){ undo(); }
+  });
+
+  function attachDrag(card){
+    var startX=0, startY=0, dx=0, dy=0, dragging=false;
+    var likeStamp = card.querySelector('.stamp.like');
+    var nopeStamp = card.querySelector('.stamp.nope');
+
+    function pointerDown(e){
+      dragging = true;
+      startX = e.clientX; startY = e.clientY;
+      card.style.transition = 'none';
+      card.setPointerCapture && card.setPointerCapture(e.pointerId);
+    }
+    function pointerMove(e){
+      if(!dragging) return;
+      dx = e.clientX - startX; dy = e.clientY - startY;
+      var rot = dx/18;
+      card.style.transform = 'translate('+dx+'px,'+dy+'px) rotate('+rot+'deg)';
+      var ratio = Math.min(Math.abs(dx)/120,1);
+      if(dx>0){ likeStamp.style.opacity = ratio; nopeStamp.style.opacity=0; }
+      else if(dx<0){ nopeStamp.style.opacity = ratio; likeStamp.style.opacity=0; }
+    }
+    function pointerUp(){
+      if(!dragging) return;
+      dragging=false;
+      if(dx > 110){ commit('like'); }
+      else if(dx < -110){ commit('nope'); }
+      else {
+        card.style.transition = 'transform .25s ease';
+        card.style.transform = 'translate(0,0) rotate(0)';
+        likeStamp.style.opacity=0; nopeStamp.style.opacity=0;
+      }
+      dx=0; dy=0;
+    }
+    card.addEventListener('pointerdown', pointerDown);
+    card.addEventListener('pointermove', pointerMove);
+    card.addEventListener('pointerup', pointerUp);
+    card.addEventListener('pointercancel', pointerUp);
+  }
+
+  resetDeck();
+
+})();
+</script>
